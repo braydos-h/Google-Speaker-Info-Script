@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-googlespeakerinfo.py – CLI dashboard & utility for the /setup/eureka_info endpoint
+googlespeakerinfo.py – CLI dashboard & utility for the
+/setup/eureka_info endpoint
 -------------------------------------------------------------------------------
 • Live, colour‑coded dashboard that refreshes every *n* seconds
 • Interactive text menu to tweak URL, refresh interval, or dump raw JSON
@@ -27,7 +28,7 @@ import urllib.error as _ue
 import urllib.request as _ur
 from types import SimpleNamespace as _NS
 
-# ── Optional colour support via colourama ───────────────────────────────────────
+# ── Optional colour support via colourama ───────
 try:
     from colorama import Fore, Style, init as _cinit  # type: ignore
 
@@ -44,26 +45,35 @@ try:
     def _c(txt: str, colour: str | None = None) -> str:  # colour‑helper
         if colour is None:
             return txt
-        return f"{getattr(_Pal, colour, '')}{txt}{_Pal.RESET}"  # type: ignore[attr-defined]
+        pal = getattr(_Pal, colour, "")
+        return f"{pal}{txt}{_Pal.RESET}"
 
-except ModuleNotFoundError:  # colourama not installed – fall back to plain text
+except (
+    ModuleNotFoundError
+):  # colourama not installed – fall back to plain text
 
     class _Pal:  # dummy placeholders so attr look‑ups don’t explode
         CYAN = GREEN = YELLOW = RED = HEADER = RESET = ""
 
-    def _c(txt: str, colour: str | None = None) -> str:  # noqa: D401 – simple style
+    def _c(
+        txt: str, colour: str | None = None
+    ) -> str:  # noqa: D401 – simple style
         return txt
 
-# ── Small helpers ───────────────────────────────────────────────────────────────
+
+# ── Small helpers ─────────────
+
 
 def _clear() -> None:
     """Clear the terminal/console window (cross‑platform)."""
     _os.system("cls" if _os.name == "nt" else "clear")
 
+
 def _fetch(url: str, timeout: float = 3.0) -> dict:
     """Fetch JSON from *url* and return as dict, raising on errors."""
     with _ur.urlopen(url, timeout=timeout) as resp:
         return _json.load(resp)
+
 
 def _wifi_colour(rssi: int) -> str:
     """Return colour name for Wi‑Fi RSSI (dBm)."""
@@ -73,14 +83,19 @@ def _wifi_colour(rssi: int) -> str:
         return "YELLOW"
     return "RED"
 
+
 def _line(label: str, value: object, colour: str | None = None) -> None:
     pad = f"{label}:".ljust(18)
     print(_c(pad, "CYAN"), _c(value, colour))
 
-# ── Dashboard renderer ─────────────────────────────────────────────────────────-
+
+# ── Dashboard renderer ───────────
+
 
 def _dash(data: dict) -> None:
-    boot_utc = _dt.datetime.utcnow() - _dt.timedelta(seconds=data.get("uptime", 0))
+    boot_utc = _dt.datetime.utcnow() - _dt.timedelta(
+        seconds=data.get("uptime", 0)
+    )
     up_span = _dt.timedelta(seconds=data.get("uptime", 0))
 
     update_col = "YELLOW" if data.get("has_update") else "CYAN"
@@ -116,9 +131,13 @@ def _dash(data: dict) -> None:
     _line("Opt‑In Crash", data.get("opt_in", {}).get("crash"))
     _line("Opt‑In Stats", data.get("opt_in", {}).get("stats"))
     print()
-    print(_c("Green = good · Yellow = meh · Red = bad/needs attention", "CYAN"))
+    print(
+        _c("Green = good · Yellow = meh · Red = bad/needs attention", "CYAN")
+    )
 
-# ── Live dashboard loop ─────────────────────────────────────────────────────────
+
+# ── Live dashboard loop ──────────
+
 
 def _live(url: str, interval: int) -> None:
     while True:
@@ -133,7 +152,9 @@ def _live(url: str, interval: int) -> None:
             return
         _time.sleep(interval)
 
-# ── One‑shot JSON dump ──────────────────────────────────────────────────────────
+
+# ── One‑shot JSON dump ───────────
+
 
 def _dump(url: str, path: str) -> None:
     data = _fetch(url)
@@ -141,12 +162,17 @@ def _dump(url: str, path: str) -> None:
         _json.dump(data, fh, indent=2)
     print(f"Wrote {len(data)} top‑level keys to {path}")
 
-# ── Main interactive menu ───────────────────────────────────────────────────────
+
+# ── Main interactive menu ───────────
+
 
 def _menu():
-    state = _NS(url="http://192.168.8.110:8008/setup/eureka_info?options=detail", interval=5)
+    state = _NS(
+        url="http://192.168.8.110:8008/setup/eureka_info?options=detail",
+        interval=5,
+    )
     while True:
-        print("\n── Google Speaker Info ─────────────────────────────────────────────")
+        print("\n── Google Speaker Info ─────────────")
         print(f"Current URL            : {state.url}")
         print(f"Current refresh interval: {state.interval} s")
         print("1) Start live dashboard")
@@ -167,7 +193,10 @@ def _menu():
             except ValueError:
                 print("Not a number → keeping previous interval.")
         elif choice == "4":
-            path = input("File to save (default eureka.json) > ").strip() or "eureka.json"
+            path = (
+                input("File to save (default eureka.json) > ").strip()
+                or "eureka.json"
+            )
             try:
                 _dump(state.url, path)
             except Exception as exc:  # broad: user just wants message
@@ -178,7 +207,8 @@ def _menu():
         else:
             print("Unknown selection – try again.")
 
-# ── Entry point ────────────────────────────────────────────────────────────────
+
+# ── Entry point ───────────
 if __name__ == "__main__":
     try:
         _menu()
