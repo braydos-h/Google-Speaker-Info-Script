@@ -18,6 +18,7 @@ Author: maybe braydos but mainly vibe coded (2025‑05‑19)
 
 from __future__ import annotations
 
+import argparse as _argparse
 import datetime as _dt
 import json as _json
 import os as _os
@@ -143,8 +144,9 @@ def _dump(url: str, path: str) -> None:
 
 # ── Main interactive menu ───────────────────────────────────────────────────────
 
-def _menu():
-    state = _NS(url="http://192.168.8.110:8008/setup/eureka_info?options=detail", interval=5)
+def _menu(default_url: str | None = None) -> None:
+    url = default_url or "http://192.168.8.110:8008/setup/eureka_info?options=detail"
+    state = _NS(url=url, interval=5)
     while True:
         print("\n── Google Speaker Info ─────────────────────────────────────────────")
         print(f"Current URL            : {state.url}")
@@ -180,7 +182,10 @@ def _menu():
 
 # ── Entry point ────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
+    parser = _argparse.ArgumentParser(description="Google Speaker Info Dashboard")
+    parser.add_argument("--url", help="Default eureka_info URL")
+    args = parser.parse_args()
     try:
-        _menu()
+        _menu(args.url)
     except KeyboardInterrupt:
         print("\nInterrupted. Exiting.")

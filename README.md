@@ -30,3 +30,12 @@ Live terminal dashboard for Google smart speakers (Chromecast, Nest Audio, etc.)
   Enable ANSI colors on Windows:
   ```bash
   pip install colorama
+  ```
+
+### 🔨 Usage Example
+
+Run the menu with a custom speaker URL:
+
+```bash
+python googlespeakerinfo.py --url http://192.168.1.100:8008/setup/eureka_info?options=detail
+```
