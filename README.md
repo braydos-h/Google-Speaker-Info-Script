@@ -26,7 +26,9 @@ Live terminal dashboard for Google smart speakers (Chromecast, Nest Audio, etc.)
 
 - Python 3.7+
 - Device must be reachable on your local network
-- *(Optional but recommended)*  
+- *(Optional but recommended)*
   Enable ANSI colors on Windows:
   ```bash
-  pip install colorama
+  pip install colorama>=0.4,<0.5
+  ```
+  Or install from `requirements.txt`.
