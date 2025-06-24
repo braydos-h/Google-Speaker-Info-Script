@@ -1,0 +1,2 @@
+# Optional dependency for colored console output on Windows
+colorama>=0.4,<0.5
